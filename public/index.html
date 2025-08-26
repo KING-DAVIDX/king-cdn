@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KingCDN - Professional File Hosting</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #3730a3;
+            --secondary: #111827;
+            --text: #f3f4f6;
+            --text-light: #9ca3af;
+            --white: #ffffff;
+            --success: #10b981;
+            --error: #ef4444;
+            --border: #374151;
+            --accent: #f59e0b;
+            --gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: var(--secondary);
+            color: var(--text);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 0;
+        }
+        
+        h1 {
+            color: var(--white);
+            margin-bottom: 15px;
+            font-size: 3rem;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+        
+        .subtitle {
+            color: var(--text-light);
+            font-size: 1.3rem;
+            margin-top: 10px;
+        }
+        
+        .card {
+            background-color: #1f2937;
+            border-radius: 16px;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.3);
+            padding: 35px;
+            margin-bottom: 30px;
+            transition: transform 0.3s ease;
+            border: 1px solid var(--border);
+        }
+        
+        .card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .card-title {
+            font-size: 1.7rem;
+            margin-bottom: 25px;
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .card-title i {
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .upload-section {
+            display: flex;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .upload-section {
+                flex-direction: column;
+            }
+        }
+        
+        .upload-method {
+            flex: 1;
+            padding: 25px;
+            border-radius: 12px;
+            background-color: #374151;
+            transition: all 0.3s;
+            border: 2px dashed var(--border);
+            text-align: center;
+        }
+        
+        .upload-method:hover {
+            border-color: var(--primary);
+            background-color: rgba(79, 70, 229, 0.1);
+        }
+        
+        .upload-icon {
+            font-size: 2.8rem;
+            margin-bottom: 18px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .upload-method-title {
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+            color: var(--white);
+            font-weight: 600;
+        }
+        
+        .upload-method-desc {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            margin-bottom: 18px;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .btn {
+            background: var(--gradient);
+            color: var(--white);
+            border: none;
+            padding: 14px 28px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: rgba(79, 70, 229, 0.1);
+        }
+        
+        .btn-accent {
+            background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+        }
+        
+        .btn-accent:hover {
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 35px 0;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(55, 65, 81, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 55px;
+            height: 55px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .result {
+            margin-top: 30px;
+            padding: 30px;
+            border-radius: 12px;
+            background-color: rgba(16, 185, 129, 0.1);
+            display: none;
+            animation: fadeIn 0.5s ease;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result-title {
+            color: var(--success);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.4rem;
+        }
+        
+        .url-container {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .url-display {
+            flex-grow: 1;
+            padding: 14px 18px;
+            background-color: #1f2937;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            word-break: break-all;
+            font-family: monospace;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+        
+        .file-info {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #374151;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .file-info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .file-info-label {
+            font-weight: 500;
+            color: var(--text-light);
+        }
+        
+        .file-info-value {
+            font-weight: 600;
+            color: var(--white);
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 16px 28px;
+            background-color: var(--success);
+            color: var(--white);
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 1000;
+            animation: slideIn 0.3s ease, fadeOut 0.5s ease 2.5s forwards;
+            font-weight: 500;
+        }
+        
+        .toast.error {
+            background-color: var(--error);
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+        .file-preview {
+            max-width: 100%;
+            max-height: 220px;
+            margin-top: 20px;
+            border-radius: 10px;
+            display: none;
+            border: 1px solid var(--border);
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            color: var(--text-light);
+            font-size: 0.95rem;
+            padding: 25px 0;
+            border-top: 1px solid var(--border);
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 12px;
+            background-color: var(--border);
+            border-radius: 6px;
+            margin: 25px 0;
+            overflow: hidden;
+            display: none;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: var(--gradient);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 6px;
+        }
+        
+        .docs-section {
+            margin-top: 50px;
+        }
+        
+        .docs-code {
+            background-color: #1f2937;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+        }
+        
+        .docs-code pre {
+            color: var(--text);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .docs-endpoint {
+            background: var(--gradient);
+            padding: 8px 16px;
+            border-radius: 6px;
+            color: white;
+            font-weight: 600;
+            display: inline-block;
+            margin: 15px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .url-container {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .card {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-crown"></i> KingCDN</h1>
+            <p class="subtitle">Premium file hosting with instant global delivery</p>
+        </header>
+        
+        <div class="card">
+            <h2 class="card-title"><i class="fas fa-cloud-upload-alt"></i> Upload Your File</h2>
+            <p style="color: var(--text-light); margin-bottom: 25px;">Select your preferred upload method:</p>
+            
+            <div class="upload-section">
+                <div class="upload-method" id="dragDropArea">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h3 class="upload-method-title">Drag & Drop</h3>
+                    <p class="upload-method-desc">Drag your file directly into this area</p>
+                    <div id="dropZone" style="min-height: 100px; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                        <p id="dragText" style="color: var(--text-light); margin-bottom: 15px;">Drop your file here</p>
+                    </div>
+                </div>
+                
+                <div class="upload-method">
+                    <div class="upload-icon">
+                        <i class="fas fa-folder-open"></i>
+                    </div>
+                    <h3 class="upload-method-title">Browse Files</h3>
+                    <p class="upload-method-desc">Select a file from your device</p>
+                    <button class="btn btn-secondary" id="browseBtn">
+                        <i class="fas fa-search"></i> Select File
+                    </button>
+                    <input type="file" id="fileInput" class="file-input">
+                </div>
+            </div>
+            
+            <div id="selectedFiles" style="display: none; margin-top: 25px;">
+                <h3 style="color: var(--white); margin-bottom: 18px; display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-file" style="background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i> Selected File
+                </h3>
+                <div class="file-info" id="fileInfo">
+                    <div class="file-info-item">
+                        <span class="file-info-label">Filename:</span>
+                        <span class="file-info-value" id="fileName"></span>
+                    </div>
+                    <div class="file-info-item">
+                        <span class="file-info-label">File size:</span>
+                        <span class="file-info-value" id="fileSize"></span>
+                    </div>
+                    <div class="file-info-item">
+                        <span class="file-info-label">File type:</span>
+                        <span class="file-info-value" id="fileType"></span>
+                    </div>
+                </div>
+                <img id="filePreview" class="file-preview" alt="File preview">
+            </div>
+            
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            
+            <button class="btn" id="uploadBtn" disabled style="margin-top: 25px;">
+                <i class="fas fa-upload"></i> Upload to KingCDN
+            </button>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p style="color: var(--text-light);">Uploading your file to our global network...</p>
+            </div>
+            
+            <div class="result" id="result">
+                <h3 class="result-title">
+                    <i class="fas fa-check-circle"></i> File successfully uploaded!
+                </h3>
+                <p style="color: var(--text-light);">Your file is now available at this URL:</p>
+                
+                <div class="url-container">
+                    <input type="text" id="urlDisplay" class="url-display" readonly>
+                    <button id="copyBtn" class="btn btn-accent">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+                
+                <div class="file-info" style="margin-top: 20px;">
+                    <div class="file-info-item">
+                        <span class="file-info-label">Direct URL:</span>
+                        <span class="file-info-value" id="directUrl"></span>
+                    </div>
+                </div>
+                
+                <button id="newUploadBtn" class="btn btn-secondary" style="margin-top: 20px;">
+                    <i class="fas fa-plus"></i> Upload Another File
+                </button>
+            </div>
+        </div>
+        
+        <div class="card docs-section">
+            <h2 class="card-title"><i class="fas fa-code"></i> API Integration</h2>
+            
+            <h3 style="color: var(--white); margin: 25px 0 15px 0;">Endpoint: <span class="docs-endpoint">POST /upload</span></h3>
+            <p style="color: var(--text-light); margin-bottom: 15px;">Upload files to KingCDN using our simple API:</p>
+            
+            <div class="docs-code">
+                <pre>const formData = new FormData();
+formData.append('file', fileInput.files[0]);
+
+const response = await fetch('/upload', {
+  method: 'POST',
+  body: formData
+});
+
+const result = await response.json();
+console.log(result.url);</pre>
+            </div>
+            
+            <h3 style="color: var(--white); margin: 30px 0 15px 0;">Node.js Example</h3>
+            <div class="docs-code">
+                <pre>const fetch = require('node-fetch');
+const FormData = require('form-data');
+const fs = require('fs');
+
+const form = new FormData();
+form.append('file', fs.createReadStream('./file.png'));
+
+fetch('http://your-domain.com/upload', { 
+  method: 'POST', 
+  body: form 
+})
+.then(res => res.json())
+.then(data => console.log(data.url));</pre>
+            </div>
+            
+            <h3 style="color: var(--white); margin: 30px 0 15px 0;">Response Format</h3>
+            <div class="docs-code">
+                <pre>{
+  "url": "https://your-domain.com/files/abc123.png",
+  "fileSize": 1024
+}</pre>
+            </div>
+            
+            <h3 style="color: var(--white); margin: 30px 0 15px 0;">Error Responses</h3>
+            <div class="docs-code">
+                <pre>// No file uploaded
+{ "error": "no file uploaded" }
+
+// Upload failed
+{ "error": "upload failed" }
+
+// File not found
+{ "error": "file not found" }</pre>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2025 KingCDN | Enterprise-grade file hosting solution</p>
+        </footer>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const browseBtn = document.getElementById('browseBtn');
+        const dragDropArea = document.getElementById('dragDropArea');
+        const dropZone = document.getElementById('dropZone');
+        const dragText = document.getElementById('dragText');
+        const loading = document.getElementById('loading');
+        const result = document.getElementById('result');
+        const urlDisplay = document.getElementById('urlDisplay');
+        const copyBtn = document.getElementById('copyBtn');
+        const newUploadBtn = document.getElementById('newUploadBtn');
+        const filePreview = document.getElementById('filePreview');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const fileType = document.getElementById('fileType');
+        const directUrl = document.getElementById('directUrl');
+        const toast = document.getElementById('toast');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const selectedFiles = document.getElementById('selectedFiles');
+
+        browseBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFileSelection);
+        uploadBtn.addEventListener('click', uploadFile);
+        copyBtn.addEventListener('click', copyUrl);
+        newUploadBtn.addEventListener('click', resetForm);
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dragDropArea.classList.add('active');
+            dragText.textContent = 'Release to upload';
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dragDropArea.classList.remove('active');
+            dragText.textContent = 'Drop your file here';
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dragDropArea.classList.remove('active');
+            dragText.textContent = 'Drop your file here';
+            
+            if (e.dataTransfer.files.length) {
+                const dataTransfer = new DataTransfer();
+                for (let i = 0; i < e.dataTransfer.files.length; i++) {
+                    dataTransfer.items.add(e.dataTransfer.files[i]);
+                }
+                fileInput.files = dataTransfer.files;
+                handleFileSelection();
+            }
+        });
+
+        function handleFileSelection() {
+            if (fileInput.files.length === 0) return;
+            
+            const file = fileInput.files[0];
+            uploadBtn.disabled = false;
+            selectedFiles.style.display = 'block';
+            
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            fileType.textContent = file.type || 'Unknown';
+            fileInfo.style.display = 'block';
+            
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    filePreview.src = e.target.result;
+                    filePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                filePreview.style.display = 'none';
+            }
+        }
+
+        async function uploadFile() {
+            if (fileInput.files.length === 0) {
+                showToast('Please select a file first', true);
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            progressContainer.style.display = 'block';
+            uploadBtn.disabled = true;
+            
+            try {
+                const xhr = new XMLHttpRequest();
+                
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const percent = Math.round((e.loaded / e.total) * 100);
+                        progressBar.style.width = `${percent}%`;
+                    }
+                });
+                
+                xhr.open('POST', '/upload', true);
+                
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        const data = JSON.parse(xhr.responseText);
+                        
+                        if (data.url) {
+                            urlDisplay.value = data.url;
+                            directUrl.textContent = data.url;
+                            result.style.display = 'block';
+                            showToast('File successfully uploaded!');
+                        } else {
+                            showToast(data.error || 'Upload failed', true);
+                        }
+                    } else {
+                        showToast('Upload failed with status: ' + xhr.status, true);
+                    }
+                    
+                    loading.style.display = 'none';
+                    progressContainer.style.display = 'none';
+                    progressBar.style.width = '0%';
+                    uploadBtn.disabled = false;
+                };
+                
+                xhr.onerror = function() {
+                    showToast('Network error occurred', true);
+                    loading.style.display = 'none';
+                    progressContainer.style.display = 'none';
+                    progressBar.style.width = '0%';
+                    uploadBtn.disabled = false;
+                };
+                
+                xhr.send(formData);
+            } catch (error) {
+                showToast('Upload failed', true);
+                loading.style.display = 'none';
+                progressContainer.style.display = 'none';
+                progressBar.style.width = '0%';
+                uploadBtn.disabled = false;
+            }
+        }
+
+        function copyUrl() {
+            urlDisplay.select();
+            document.execCommand('copy');
+            
+            copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            setTimeout(() => {
+                copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+            }, 2000);
+            
+            showToast('URL copied to clipboard!');
+        }
+
+        function resetForm() {
+            fileInput.value = '';
+            uploadBtn.disabled = true;
+            result.style.display = 'none';
+            selectedFiles.style.display = 'none';
+            filePreview.style.display = 'none';
+            progressBar.style.width = '0%';
+        }
+
+        function showToast(message, isError = false) {
+            toast.textContent = message;
+            toast.className = isError ? 'toast error' : 'toast';
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>
